@@ -1,55 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchBar from './SearchBar';
-import youtube from '../apis/youtube';
 import VideoList from './VideoList';
 import VideoDetail from './VideoDetail';
+import useVideos from '../hooks/useVideos';
 
-class App extends React.Component {
-    state = { videos: [], selectedVideo: null };
 
-    componentDidMount() {
-        this.onTermSubmit('4k nature');
-    }
+const App = () => {
+  
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const [videos, search] = useVideos('nature');
 
-    onTermSubmit = async term => {
-        const response = await youtube.get('/search', {
-        params: {
-            q: term
-        }
-    });
-    this.setState({
-     videos: response.data.items,
-     selectedVideo: response.data.items[0]
-     });
-};
+         
+       
+    useEffect (() => {
+        setSelectedVideo(videos[0]);
+    }, [videos]);
 
-onVideoSelect = (video) => {
-    this.setState({ selectedVideo: video });
-};
-    
-                    //line 23 ; passing a prop
-                    // "videos" array of videos is available
-                    // at this.state.videos
-    render() {
-        return(
+ return (
             <div className="ui container">
-                <SearchBar onFormSubmit={this.onTermSubmit} />
-                <div className="ui grid">
+                <SearchBar onFormSubmit={search} />
+                <div className="ui grid">  
                     <div className="ui row">
                         <div className="eleven wide column">
-                            <VideoDetail video={this.state.selectedVideo} />
+                            <VideoDetail video={selectedVideo} />
                         </div>
                         <div className="five wide column">
                             <VideoList
-                            onVideoSelect={this.onVideoSelect}
-                            videos={this.state.videos}
+                            onVideoSelect={setSelectedVideo}
+                            videos={videos}
                         />
                         </div>
                     </div>
                 </div>  
             </div>
         );
-    }
-}
+
+};
 
 export default App;
